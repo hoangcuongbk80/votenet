@@ -6,27 +6,20 @@ sys.path.append(BASE_DIR)
 ROOT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(os.path.join(ROOT_DIR, 'utils'))
 
-class SunrgbdDatasetConfig(object):
+class ycbgraspDatasetConfig(object):
     def __init__(self):
-        self.num_class = 10
+        self.num_class = 5
         self.num_heading_bin = 12
         self.num_size_cluster = 10
 
-        self.type2class={'007_tuna_fish_can':0, '008_pudding_box':1, '011_banana':2, '024_bowl':3, '025_mug':4, '044_flat_screwdriver':5,
-                            '051_large_clamp':6, '055_baseball':7, '061_foam_brick': 8, '065-h_cups':9}
+        self.type2class={'011_banana':0, '024_bowl':1, '025_mug':2, '044_flat_screwdriver':3,'051_large_clamp':4}
         self.class2type = {self.type2class[t]:t for t in self.type2class}
-        self.type2onehotclass={'007_tuna_fish_can':0, '008_pudding_box':1, '011_banana':2, '024_bowl':3, '025_mug':4, '044_flat_screwdriver':5,
-                                '051_large_clamp':6, '055_baseball':7, '061_foam_brick': 8, '065-h_cups':9}
-        self.type_mean_size = {'007_tuna_fish_can': np.array([0.088,0.066,0.022]),
-                          '008_pudding_box': np.array([0.088, 0.066, 0.022]),
-                          '011_banana': np.array([0.019, 0.0371073, 0.0985726]),
+        self.type2onehotclass={'011_banana':0, '024_bowl':1, '025_mug':2, '044_flat_screwdriver':3,'051_large_clamp':4}
+        self.type_mean_size = {'011_banana': np.array([0.019, 0.0371073, 0.0985726]),
                           '024_bowl': np.array([0.0274741, 0.0802303, 0.0806955]),
                           '025_mug': np.array([0.0483712, 0.0552333, 0.0599306]),
                           '044_flat_screwdriver': np.array([0.0172692, 0.0167839, 0.108077]),
-                          '051_large_clamp': np.array([0.0181959, 0.0607794, 0.0833631]),
-                          '055_baseball': np.array([0.088,0.066,0.022]),
-                          '061_foam_brick': np.array([0.088,0.066,0.022]),
-                          '065-h_cups': np.array([0.088,0.066,0.022])}
+                          '051_large_clamp': np.array([0.0181959, 0.0607794, 0.0833631])}
 
         self.mean_size_arr = np.zeros((self.num_size_cluster, 3))
         for i in range(self.num_size_cluster):

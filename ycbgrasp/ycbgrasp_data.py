@@ -29,12 +29,11 @@ import ycbgrasp_utils
 parser = argparse.ArgumentParser()
 parser.add_argument('--viz', action='store_true', help='Run data visualization.')
 parser.add_argument('--gen_data', action='store_true', help='Generate training dataset.')
-parser.add_argument('--num_sample', type=int, default=9, help='Number of samples [default: 10000]')
+parser.add_argument('--num_sample', type=int, default=99, help='Number of samples [default: 10000]')
 
 args = parser.parse_args()
 
-DEFAULT_TYPE_WHITELIST = ['007_tuna_fish_can','008_pudding_box','011_banana','024_bowl','025_mug','044_flat_screwdriver',
-                            '051_large_clamp','055_baseball', '061_foam_brick', '065-h_cups']
+DEFAULT_TYPE_WHITELIST = ['011_banana','024_bowl','025_mug','044_flat_screwdriver', '051_large_clamp']
 
 class ycb_object(object):
     ''' Load and parse object data '''
@@ -87,9 +86,10 @@ def data_viz(data_dir, dump_dir=os.path.join(BASE_DIR, 'data_viz_dump')):
             pc_util.write_oriented_bbox(oriented_boxes,
             os.path.join(dump_dir, 'obbs.ply'))
             pc_util.write_ply(pc, os.path.join(dump_dir, 'pc.ply'))
+        break
     print('Complete!')
     
-def extract_ycbgrasp_data(data_dir, idx_filename, split, output_folder, num_point=20000,
+def extract_ycbgrasp_data(data_dir, idx_filename, output_folder, num_point=20000,
     type_whitelist=DEFAULT_TYPE_WHITELIST):
     
     dataset = ycb_object(data_dir)
@@ -127,29 +127,25 @@ def extract_ycbgrasp_data(data_dir, idx_filename, split, output_folder, num_poin
         point_vote_idx = np.zeros((N)).astype(np.int32) # in the range of [0,2]
         indices = np.arange(N)
         for obj in objects:
-            try:
-                # Find all points in this object's OBB
-                box3d_pts_3d = sunrgbd_utils.my_compute_box_3d(obj.centroid,
-                    np.array([obj.l,obj.w,obj.h]), obj.heading_angle)
-                pc_in_box3d,inds = sunrgbd_utils.extract_pc_in_box3d(pc, box3d_pts_3d)
-                # Assign first dimension to indicate it is in an object box
-                point_votes[inds,0] = 1
-                # Add the votes (all 0 if the point is not in any object's OBB)
-                votes = np.expand_dims(obj.centroid,0) - pc_in_box3d[:,0:3]
-                sparse_inds = indices[inds] # turn dense True,False inds to sparse number-wise inds
-                for i in range(len(sparse_inds)):
-                    j = sparse_inds[i]
-                    point_votes[j, int(point_vote_idx[j]*3+1):int((point_vote_idx[j]+1)*3+1)] = votes[i,:]
-                    # Populate votes with the fisrt vote
-                    if point_vote_idx[j] == 0:
-                        point_votes[j,4:7] = votes[i,:]
-                        point_votes[j,7:10] = votes[i,:]
-                point_vote_idx[inds] = np.minimum(2, point_vote_idx[inds]+1)
-            except:
-                print('ERROR ----',  data_idx, obj.classname)
-        np.savez_compressed(os.path.join(output_folder, '%06d_votes.npz'%(data_idx)),
-            point_votes = point_votes)
-
+            # Find all points in this object's OBB
+            box3d_pts_3d = ycbgrasp_utils.my_compute_box_3d(obj.centroid,
+                np.array([obj.l,obj.w,obj.h]), obj.heading_angle)
+            pc_in_box3d,inds = ycbgrasp_utils.extract_pc_in_box3d(pc, box3d_pts_3d)
+            # Assign first dimension to indicate it is in an object box
+            point_votes[inds,0] = 1
+            # Add the votes (all 0 if the point is not in any object's OBB)
+            votes = np.expand_dims(obj.centroid,0) - pc_in_box3d[:,0:3]
+            sparse_inds = indices[inds] # turn dense True,False inds to sparse number-wise inds
+            for i in range(len(sparse_inds)):
+                j = sparse_inds[i]
+                point_votes[j, int(point_vote_idx[j]*3+1):int((point_vote_idx[j]+1)*3+1)] = votes[i,:]
+                # Populate votes with the fisrt vote
+                if point_vote_idx[j] == 0:
+                    point_votes[j,4:7] = votes[i,:]
+                    point_votes[j,7:10] = votes[i,:]
+            point_vote_idx[inds] = np.minimum(2, point_vote_idx[inds]+1)
+        np.savez_compressed(os.path.join(output_folder, '%06d_votes.npz'%(data_idx)), point_votes = point_votes)
+        print(point_votes)
     return 0
 
     
@@ -163,14 +159,11 @@ if __name__=='__main__':
         idxs = np.array(range(0,args.num_sample))
         np.random.seed(0)
         np.random.shuffle(idxs)
-        np.savetxt(os.path.join(BASE_DIR, 'data', 'train_data_idx.txt'), idxs[:5], fmt='%i')
-        np.savetxt(os.path.join(BASE_DIR, 'data', 'val_data_idx.txt'), idxs[5:7], fmt='%i')
-        np.savetxt(os.path.join(BASE_DIR, 'data', 'eval_data_idx.txt'), idxs[7:9], fmt='%i')
+        np.savetxt(os.path.join(BASE_DIR, 'data', 'train_data_idx.txt'), idxs[:70], fmt='%i')
+        np.savetxt(os.path.join(BASE_DIR, 'data', 'val_data_idx.txt'), idxs[70:], fmt='%i')
         
         DATA_DIR = os.path.join(BASE_DIR, 'data')
         extract_ycbgrasp_data(DATA_DIR, os.path.join(DATA_DIR, 'train_data_idx.txt'),
             output_folder = os.path.join(DATA_DIR, 'train'), num_point=50000)
         extract_ycbgrasp_data(DATA_DIR, os.path.join(DATA_DIR, 'val_data_idx.txt'),
             output_folder = os.path.join(DATA_DIR, 'val'), num_point=50000)
-        extract_ycbgrasp_data(DATA_DIR, os.path.join(DATA_DIR, 'val_data_idx.txt'),
-            output_folder = os.path.join(DATA_DIR, 'eval'), num_point=50000)

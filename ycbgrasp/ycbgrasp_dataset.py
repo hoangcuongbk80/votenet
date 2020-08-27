@@ -30,13 +30,11 @@ MEAN_COLOR_RGB = np.array([0.5,0.5,0.5]) # sunrgbd color is in 0~1
 
 class ycbgraspVotesDataset(Dataset):
     def __init__(self, split_set='train', num_points=20000,
-        use_color=False, use_height=False, use_v1=False,
-        augment=False, scan_idx_list=None):
+        use_color=False, use_height=False, augment=False, scan_idx_list=None):
 
         assert(num_points<=50000)
-        self.data_path = os.path.join(ROOT_DIR, 'ycbgrasp/%s'%(split_set))
+        self.data_path = os.path.join(ROOT_DIR, 'ycbgrasp/data/%s'%(split_set))
 
-        self.raw_data_path = os.path.join(ROOT_DIR, 'ycbgrasp/data')
         self.scan_names = sorted(list(set([os.path.basename(x)[0:6] \
             for x in os.listdir(self.data_path)])))
         if scan_idx_list is not None:
@@ -94,7 +92,7 @@ class ycbgraspVotesDataset(Dataset):
 
             # Rotation along up-axis/Z-axis
             rot_angle = (np.random.random()*np.pi/3) - np.pi/6 # -30 ~ +30 degree
-            rot_mat = sunrgbd_utils.rotz(rot_angle)
+            rot_mat = ycbgrasp_utils.rotz(rot_angle)
 
             point_votes_end = np.zeros_like(point_votes)
             point_votes_end[:,1:4] = np.dot(point_cloud[:,0:3] + point_votes[:,1:4], np.transpose(rot_mat))
@@ -163,7 +161,7 @@ class ycbgraspVotesDataset(Dataset):
         target_bboxes = np.zeros((MAX_NUM_OBJ, 6))
         for i in range(bboxes.shape[0]):
             bbox = bboxes[i]
-            corners_3d = sunrgbd_utils.my_compute_box_3d(bbox[0:3], bbox[3:6], bbox[6])
+            corners_3d = ycbgrasp_utils.my_compute_box_3d(bbox[0:3], bbox[3:6], bbox[6])
             # compute axis aligned box
             xmin = np.min(corners_3d[:,0])
             ymin = np.min(corners_3d[:,1])
@@ -253,7 +251,7 @@ def get_sem_cls_statistics():
     print(sem_cls_cnt)
 
 if __name__=='__main__':
-    d = ycbgraspVotesDataset(use_height=True, use_color=True, use_v1=True, augment=True)
+    d = ycbgraspVotesDataset(use_height=True, use_color=True, augment=True)
     sample = d[200]
     print(sample['vote_label'].shape, sample['vote_label_mask'].shape)
     pc_util.write_ply(sample['point_clouds'], 'pc.ply')
