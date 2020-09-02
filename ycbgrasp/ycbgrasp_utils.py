@@ -29,10 +29,17 @@ class YCBObject(object):
         data[1:] = [float(x) for x in data[1:]]
         self.classname = data[0]
         self.centroid = np.array([data[1],data[2],data[3]])
-        self.w = data[6]
+        self.w = data[4]
         self.l = data[5]
-        self.h = data[4]
-        self.heading_angle = math.pi/2 + data[7]
+        self.h = data[6]
+        self.heading_angle = data[7]
+        if self.classname=='011_banana':
+            self.heading_angle = data[7] - math.pi/8
+        if self.classname=='044_flat_screwdriver':
+            self.heading_angle = data[7] + math.pi/4
+        if self.classname=='051_large_clamp':
+            self.heading_angle = data[7]
+
 
 def load_pointcloud(pc_filename):
     pointcloud = pc_util.read_ply(pc_filename)

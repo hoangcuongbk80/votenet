@@ -10,7 +10,7 @@ class ycbgraspDatasetConfig(object):
     def __init__(self):
         self.num_class = 5
         self.num_heading_bin = 12
-        self.num_size_cluster = 10
+        self.num_size_cluster = 5
 
         self.type2class={'011_banana':0, '024_bowl':1, '025_mug':2, '044_flat_screwdriver':3,'051_large_clamp':4}
         self.class2type = {self.type2class[t]:t for t in self.type2class}

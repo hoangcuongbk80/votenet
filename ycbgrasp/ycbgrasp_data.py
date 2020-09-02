@@ -29,7 +29,7 @@ import ycbgrasp_utils
 parser = argparse.ArgumentParser()
 parser.add_argument('--viz', action='store_true', help='Run data visualization.')
 parser.add_argument('--gen_data', action='store_true', help='Generate training dataset.')
-parser.add_argument('--num_sample', type=int, default=99, help='Number of samples [default: 10000]')
+parser.add_argument('--num_sample', type=int, default=1000, help='Number of samples [default: 10000]')
 
 args = parser.parse_args()
 
@@ -67,6 +67,8 @@ def data_viz(data_dir, dump_dir=os.path.join(BASE_DIR, 'data_viz_dump')):
             os.mkdir(dump_dir)
 
     for idx in range(len(ycb)):
+        if idx%30:
+            continue
         data_idx = idxs[idx]
         print('data index: ', data_idx)
         pc = ycb.get_pointcloud(data_idx)
@@ -84,9 +86,9 @@ def data_viz(data_dir, dump_dir=os.path.join(BASE_DIR, 'data_viz_dump')):
         if len(oriented_boxes)>0:
             oriented_boxes = np.vstack(tuple(oriented_boxes))
             pc_util.write_oriented_bbox(oriented_boxes,
-            os.path.join(dump_dir, 'obbs.ply'))
-            pc_util.write_ply(pc, os.path.join(dump_dir, 'pc.ply'))
-        break
+            os.path.join(dump_dir, str(idx) + '_obbs.ply'))
+            pc_util.write_ply(pc, os.path.join(dump_dir, str(idx) + '_pc.ply'))
+        
     print('Complete!')
     
 def extract_ycbgrasp_data(data_dir, idx_filename, output_folder, num_point=20000,
@@ -159,8 +161,8 @@ if __name__=='__main__':
         idxs = np.array(range(0,args.num_sample))
         np.random.seed(0)
         np.random.shuffle(idxs)
-        np.savetxt(os.path.join(BASE_DIR, 'data', 'train_data_idx.txt'), idxs[:70], fmt='%i')
-        np.savetxt(os.path.join(BASE_DIR, 'data', 'val_data_idx.txt'), idxs[70:], fmt='%i')
+        np.savetxt(os.path.join(BASE_DIR, 'data', 'train_data_idx.txt'), idxs[:800], fmt='%i')
+        np.savetxt(os.path.join(BASE_DIR, 'data', 'val_data_idx.txt'), idxs[800:], fmt='%i')
         
         DATA_DIR = os.path.join(BASE_DIR, 'data')
         extract_ycbgrasp_data(DATA_DIR, os.path.join(DATA_DIR, 'train_data_idx.txt'),
