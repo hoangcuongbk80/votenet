@@ -11,6 +11,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential cmake \
     libopenblas-dev
 
+# Needed for string substitution 
+SHELL ["/bin/bash", "-c"]
+# Pick up some TF dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        libfreetype6-dev \
+        libhdf5-serial-dev \
+        libzmq3-dev \
+        pkg-config \
+        software-properties-common \
+        unzip \
+	libgl1-mesa-dev
+
+# For CUDA profiling, TensorFlow requires CUPTI.
+ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
+
+
 # Python 3.5
 # For convenience, alias (but don't sym-link) python & pip to python3 & pip3 as recommended in:
 # http://askubuntu.com/questions/351318/changing-symlink-python-to-python3-causes-problems
@@ -20,10 +37,13 @@ RUN apt-get install -y --no-install-recommends python3.5 python3.5-dev python3-p
     echo "alias pip='pip3'" >> /root/.bash_aliases
 # Pillow and it's dependencies
 RUN apt-get install -y --no-install-recommends libjpeg-dev zlib1g-dev && \
-    pip3 --no-cache-dir install Pillow
+    pip3 --no-cache-dir install setuptools Pillow
 # Science libraries and other common packages
 RUN pip3 --no-cache-dir install \
-    numpy matplotlib opencv-python plyfile 'trimesh>=2.35.39,<2.35.40' 'networkx>=2.2,<2.3'
+    numpy scipy sklearn scikit-image imgaug opencv-python IPython[all] matplotlib Cython requests
+
+RUN pip3 --no-cache-dir install \
+    plyfile 'trimesh>=2.35.39,<2.35.40' 'networkx>=2.2,<2.3'
 
 # Jupyter Notebook
 # Allow access from outside the container, and skip trying to open a browser.
@@ -37,9 +57,10 @@ RUN pip3 --no-cache-dir install jupyter && \
 EXPOSE 8888
 
 # Tensorflow 1.14 - GPU
-RUN pip3 --no-cache-dir install tensorflow-gpu==1.14
+RUN python3 -m pip install --no-cache-dir tensorflow-gpu==1.14
+
 # Pytorch 1.1
-RUN pip3 install install https://download.pytorch.org/whl/cu100/torch-1.1.0-cp35-cp35m-linux_x86_64.whl
+RUN pip3 install https://download.pytorch.org/whl/cu100/torch-1.1.0-cp35-cp35m-linux_x86_64.whl
 RUN pip3 install torchvision==0.3.0
 
 # Expose port for TensorBoard
