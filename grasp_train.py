@@ -55,7 +55,6 @@ parser.add_argument('--lr_decay_steps', default='80,120,160', help='When to deca
 parser.add_argument('--lr_decay_rates', default='0.1,0.1,0.1', help='Decay rates for lr decay [default: 0.1,0.1,0.1]')
 parser.add_argument('--no_height', action='store_true', help='Do NOT use height signal in input.')
 parser.add_argument('--use_color', action='store_true', help='Use RGB color in input.')
-parser.add_argument('--use_sunrgbd_v2', action='store_true', help='Use V2 box labels for SUN RGB-D dataset')
 parser.add_argument('--overwrite', action='store_true', help='Overwrite existing log and dump folders.')
 parser.add_argument('--dump_results', action='store_true', help='Dump results.')
 FLAGS = parser.parse_args()
@@ -112,12 +111,10 @@ if FLAGS.dataset == 'ycbgrasp':
     DATASET_CONFIG = ycbgraspDatasetConfig()
     TRAIN_DATASET = ycbgraspVotesDataset('train', num_points=NUM_POINT,
         augment=True,
-        use_color=FLAGS.use_color, use_height=(not FLAGS.no_height),
-        use_v1=(not FLAGS.use_sunrgbd_v2))
-    TEST_DATASET = SunrgbdDetectionVotesDataset('val', num_points=NUM_POINT,
+        use_color=FLAGS.use_color, use_height=(not FLAGS.no_height))
+    TEST_DATASET = ycbgraspVotesDataset('val', num_points=NUM_POINT,
         augment=False,
-        use_color=FLAGS.use_color, use_height=(not FLAGS.no_height),
-        use_v1=(not FLAGS.use_sunrgbd_v2))
+        use_color=FLAGS.use_color, use_height=(not FLAGS.no_height))
 else:
     print('Unknown dataset %s. Exiting...'%(FLAGS.dataset))
     exit(-1)
