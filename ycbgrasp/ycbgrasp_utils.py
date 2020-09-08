@@ -17,10 +17,8 @@ import scipy.io as sio # to load .mat files for depth points
 import pc_util
 import math
 
-""" type2class={'007_tuna_fish_can':0, '008_pudding_box':1, '011_banana':2, '024_bowl':3, '025_mug':4, '044_flat_screwdriver':5,
-            '051_large_clamp':6, '055_baseball':7, '061_foam_brick': 8, '065-h_cups':9} """
-
-type2class={'011_banana':0, '024_bowl':1, '025_mug':2, '044_flat_screwdriver':3,'051_large_clamp':4}
+type2class={'007_tuna_fish_can':1, '008_pudding_box':2, '011_banana':3, '024_bowl':4, '025_mug':5, '044_flat_screwdriver':6,
+            '051_large_clamp':7, '055_baseball':8, '061_foam_brick':9, '065-h_cups':10}
 class2type = {type2class[t]:t for t in type2class}
 
 class YCBObject(object):
@@ -29,15 +27,19 @@ class YCBObject(object):
         data[1:] = [float(x) for x in data[1:]]
         self.classname = data[0]
         self.centroid = np.array([data[1],data[2],data[3]])
-        self.w = data[4]
-        self.l = data[5]
-        self.h = data[6]
+        self.w = data[4] + 0.01
+        self.l = data[5] + 0.01
+        self.h = data[6] + 0.01
         self.heading_angle = data[7]
+        if self.classname=='008_pudding_box':
+            self.heading_angle = data[7] - math.pi/3
         if self.classname=='011_banana':
             self.heading_angle = data[7] - math.pi/8
         if self.classname=='044_flat_screwdriver':
             self.heading_angle = data[7] + math.pi/4
         if self.classname=='051_large_clamp':
+            self.heading_angle = data[7]
+        if self.classname=='061_foam_brick':
             self.heading_angle = data[7]
 
 
@@ -45,7 +47,7 @@ def load_pointcloud(pc_filename):
     pointcloud = pc_util.read_ply(pc_filename)
     return pointcloud
 
-def load_obb(obb_filename):
+def load_label(obb_filename):
     lines = [line.rstrip() for line in open(obb_filename)]
     objects = [YCBObject(line) for line in lines[1:]]
     return objects
@@ -79,4 +81,11 @@ def in_hull(p, hull):
 def extract_pc_in_box3d(pc, box3d):
     ''' pc: (N,3), box3d: (8,3) '''
     box3d_roi_inds = in_hull(pc[:,0:3], box3d)
+    print(box3d_roi_inds)
     return pc[box3d_roi_inds,:], box3d_roi_inds
+
+def get_object_points(pc, object_name):
+    rgb=pc[:,3]
+    id = type2class[object_name]
+    inds=rgb[:]==id
+    return pc[inds,:], inds
