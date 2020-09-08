@@ -17,8 +17,8 @@ import scipy.io as sio # to load .mat files for depth points
 import pc_util
 import math
 
-type2class={'007_tuna_fish_can':1, '008_pudding_box':2, '011_banana':3, '024_bowl':4, '025_mug':5, '044_flat_screwdriver':6,
-            '051_large_clamp':7, '055_baseball':8, '061_foam_brick':9, '065-h_cups':10}
+type2class={'007_tuna_fish_can':0, '008_pudding_box':1, '011_banana':2, '024_bowl':3, '025_mug':4, '044_flat_screwdriver':5,
+            '051_large_clamp':6, '055_baseball':7, '061_foam_brick':8, '065-h_cups':9}
 class2type = {type2class[t]:t for t in type2class}
 
 class YCBObject(object):
