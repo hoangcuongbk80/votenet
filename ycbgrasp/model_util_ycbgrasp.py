@@ -8,18 +8,25 @@ sys.path.append(os.path.join(ROOT_DIR, 'utils'))
 
 class ycbgraspDatasetConfig(object):
     def __init__(self):
-        self.num_class = 5
+        self.num_class = 10
         self.num_heading_bin = 12
-        self.num_size_cluster = 5
+        self.num_size_cluster = 10
 
-        self.type2class={'011_banana':0, '024_bowl':1, '025_mug':2, '044_flat_screwdriver':3,'051_large_clamp':4}
+        self.type2class={'007_tuna_fish_can':1, '008_pudding_box':2, '011_banana':3, '024_bowl':4, '025_mug':5,
+                        '044_flat_screwdriver':6, '051_large_clamp':7, '055_baseball':8, '061_foam_brick':9, '065-h_cups':10}
         self.class2type = {self.type2class[t]:t for t in self.type2class}
-        self.type2onehotclass={'011_banana':0, '024_bowl':1, '025_mug':2, '044_flat_screwdriver':3,'051_large_clamp':4}
-        self.type_mean_size = {'011_banana': np.array([0.019, 0.0371073, 0.0985726]),
-                          '024_bowl': np.array([0.0274741, 0.0802303, 0.0806955]),
-                          '025_mug': np.array([0.0483712, 0.0552333, 0.0599306]),
-                          '044_flat_screwdriver': np.array([0.0172692, 0.0167839, 0.108077]),
-                          '051_large_clamp': np.array([0.0181959, 0.0607794, 0.0833631])}
+        self.type2onehotclass={'007_tuna_fish_can':1, '008_pudding_box':2, '011_banana':3, '024_bowl':4, '025_mug':5,
+                            '044_flat_screwdriver':6, '051_large_clamp':7, '055_baseball':8, '061_foam_brick':9, '065-h_cups':10}
+        self.type_mean_size = {'007_tuna_fish_can': np.array([0.0427889, 0.0427731, 0.0170824]),
+                            '008_pudding_box': np.array([0.0601333, 0.0489079, 0.0191283]),
+                            '011_banana': np.array([0.0985726, 0.0371073, 0.019]),
+                            '024_bowl': np.array([0.0806955, 0.0802303, 0.0274737]),
+                            '025_mug': np.array([0.0599306, 0.0552335, 0.0483711]),
+                            '044_flat_screwdriver': np.array([0.108077, 0.0172692, 0.0167839]),
+                            '051_large_clamp': np.array([0.0833631, 0.0607794, 0.0181959]),
+                            '055_baseball': np.array([0.036739, 0.0362683, 0.0361896]),
+                            '061_foam_brick': np.array([0.0396758, 0.0324347, 0.0310957]),
+                            '065-h_cups': np.array([0.0458534, 0.0455691, 0.0385724])}
 
         self.mean_size_arr = np.zeros((self.num_size_cluster, 3))
         for i in range(self.num_size_cluster):
