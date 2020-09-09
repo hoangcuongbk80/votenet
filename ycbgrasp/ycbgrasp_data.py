@@ -68,7 +68,7 @@ def data_viz(data_dir, dump_dir=os.path.join(BASE_DIR, 'data_viz_dump')):
             os.mkdir(dump_dir)
 
     for idx in range(len(ycb)):
-        if idx%100:
+        if idx%500:
             continue
         data_idx = idxs[idx]
         print('data index: ', data_idx)
