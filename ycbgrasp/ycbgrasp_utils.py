@@ -86,6 +86,6 @@ def extract_pc_in_box3d(pc, box3d):
 
 def get_object_points(pc, object_name):
     rgb=pc[:,3]
-    id = type2class[object_name]
+    id = type2class[object_name] + 1
     inds=rgb[:]==id
     return pc[inds,:], inds
