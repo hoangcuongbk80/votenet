@@ -1,6 +1,8 @@
 # Data files and directories common
 ycbgrasp/data/
 ycbgrasp/data_viz_dump
+demo_files/
+log_ycbgrasp/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
