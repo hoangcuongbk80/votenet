@@ -10,4 +10,4 @@ python setup.py install
 python grasp_train.py --dataset ycbgrasp --log_dir log_ycbgrasp
 
 # testing
-pthon grasp_demo.py
+python grasp_demo.py
